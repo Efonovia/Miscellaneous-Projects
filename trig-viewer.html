@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trig Viewer</title>
+</head>
+<style>
+    canvas {
+        height: 100%;
+        width: 100%;
+    }
+
+    .slidecontainer {
+        width: 100%;
+    }
+
+.slider {
+  width: 100px;
+  height: 25px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  background: #04AA6D;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  background: #04AA6D;
+  cursor: pointer;
+}
+
+</style>
+<body>
+    <div class="slidecontainer">
+        <p>Change the angle</p>
+        <input type="range" min="0" max="90" value="41" class="slider" id="myRange">
+      </div>
+    <canvas></canvas>
+</body>
+<script>
+    const canvas = document.querySelector('canvas')
+    const c = canvas.getContext('2d')
+
+    canvas.width = 1080
+    canvas.height = 520
+    const width = canvas.width
+    const height = canvas.height
+    const L = 250
+    
+    function drawGrid() {
+        let w = 20
+        for(let i=w; i <= width; i+=w) {
+            c.beginPath()
+            c.moveTo(i, 0)
+            c.lineWidth = 1
+            c.lineTo(i, height)
+            c.stroke()
+            c.closePath()
+        }
+        for(let i=w; i <= height; i+=w) {
+            c.beginPath()
+            c.moveTo(0, i)
+            c.lineWidth = 1
+            c.lineTo(width, i)
+            c.stroke()
+            c.closePath()
+        }
+    }
+
+    c.strokeRect(0, 0, width, height)
+    // DRAWING THE UNIT CIRCLE
+    c.beginPath()
+    c.arc(width/2, height/2, L, 0, Math.PI*2)
+    c.fillStyle = 'rgb(72, 197, 197)'
+    c.fill()
+    c.closePath()
+    
+    drawGrid()
+
+    // DRAWING THE X-AXIS
+    c.beginPath()
+    c.moveTo(width/2, 0)
+    c.lineWidth = 3
+    c.lineTo(width/2, height)
+    c.stroke()
+    c.closePath()
+
+    // DRAWING THE Y-AXIS
+    c.beginPath()
+    c.moveTo(0, height/2)
+    c.lineTo(width, height/2)
+    c.stroke()
+    c.closePath()
+
+    //DRAWING THE ANGLE LINE
+    let x1 = width/2
+    let y1 = height/2
+    let x2, y2
+
+    
+
+
+    
+
+    var slider = document.getElementById("myRange");
+    var output = document.getElementById("demo");
+
+    slider.oninput = function() {
+        c.clearRect(0, 0, width, height)
+        c.strokeRect(0, 0, width, height)
+        // DRAWING THE UNIT CIRCLE
+        c.beginPath()
+        c.arc(width/2, height/2, L, 0, Math.PI*2)
+        c.lineWidth = 2
+        c.fillStyle = 'rgb(72, 197, 197)'
+        c.fill()
+        c.closePath()
+
+        drawGrid()
+
+        // DRAWING THE X-AXIS
+        c.beginPath()
+        c.moveTo(width/2, 0)
+        c.lineWidth = 3
+        c.lineTo(width/2, height)
+        c.stroke()
+        c.closePath()
+
+        // DRAWING THE Y-AXIS
+        c.beginPath()
+        c.moveTo(0, height/2)
+        c.lineTo(width, height/2)
+        c.stroke()
+        c.closePath()
+    
+        const theta = Number(this.value) * Math.PI / 180   // angle in radians
+
+    // Find the endpoint coordinates
+    if (theta % (Math.PI / 2) === 0) {  // Special case for 90-degree increments
+        console.log('90')
+        x2 = x1
+        y2 = y1 + (L * Math.sign(theta - Math.PI / 2))
+    } else if (theta % Math.PI === 0) {  // Special case for 180-degree increments
+        console.log('180')
+
+        x2 = x1 + (L * Math.sign(theta - Math.PI))
+        y2 = y1
+    } else {
+        const slope = Math.tan(theta)
+        const x_diff = Math.sqrt(L*L / (1 + slope*slope))
+        x2 = x1 - (x_diff * Math.sign(theta - Math.PI)) 
+        y2 = y1 + (slope * x_diff * Math.sign(theta - Math.PI))
+    }
+
+    c.beginPath()
+    c.moveTo(x1, y1)
+    // c.strokeStyle = 'white'
+    c.lineWidth = 2
+    c.lineTo(x2, y2)
+    c.stroke()
+    c.closePath()
+
+    c.font = 'bold 18px Arial';
+    c.fillStyle = 'red'
+
+    if(this.value === '0') {
+        c.fillText(`(${(x2-x1)/L}, ${(y1-y2)/L})`, (width/2) + L, height/2);
+    } else if(this.value === '90') {
+        c.fillText(`(${(x2-x1)/L}, ${(y1-y2)/L})`, width/2, 20);
+    } else {
+        c.fillText(`(${(x2-x1)/L}, ${(y1-y2)/L})`, x2, y2);
+    }
+
+    c.fillText(this.value + ' degrees', (width/2) + 15, (height/2) + 15);
+
+    // console.log(`Endpoint coordinates: (${(x1-x2)/L}}, ${(y1-y2)/L}) | deg: ${theta}`)
+    }
+
+</script>
+</html>
